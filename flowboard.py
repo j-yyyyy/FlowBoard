@@ -139,6 +139,8 @@ HTML = r'''<!doctype html>
 
     .hero-meta { margin: 0; color: var(--muted); font-size: 14px; }
 
+    .hero-actions { display: flex; align-items: center; gap: 12px; }
+
     .primary-button {
       display: inline-flex;
       align-items: center;
@@ -158,6 +160,19 @@ HTML = r'''<!doctype html>
     .primary-button:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #c95b42; }
     .primary-button:active { transform: translateY(5px); box-shadow: 0 2px 0 #c95b42; }
     .primary-button .plus { font-size: 22px; line-height: 1; }
+
+    .clear-all-button {
+      min-height: 44px;
+      padding: 0 16px;
+      border: 1px solid rgba(158, 49, 49, .28);
+      border-radius: 13px;
+      background: rgba(255, 253, 248, .58);
+      color: #9e3131;
+      font-weight: 750;
+    }
+
+    .clear-all-button:hover:not(:disabled) { background: rgba(174, 54, 54, .10); }
+    .clear-all-button:disabled, .icon-button:disabled { cursor: not-allowed; opacity: .38; }
 
     .board {
       display: grid;
@@ -274,7 +289,7 @@ HTML = r'''<!doctype html>
 
     .todo-item {
       display: grid;
-      grid-template-columns: 24px minmax(0, 1fr) auto 26px;
+      grid-template-columns: 16px 24px minmax(0, 1fr) auto 48px 26px;
       align-items: center;
       gap: 6px;
       min-height: 42px;
@@ -283,6 +298,21 @@ HTML = r'''<!doctype html>
     }
 
     .todo-item:hover { background: rgba(255,255,255,.28); }
+    .todo-item.todo-dragging { opacity: .38; }
+    .todo-item.todo-drag-over { background: rgba(255,255,255,.54); box-shadow: inset 0 2px 0 rgba(37,35,31,.38); }
+
+    .todo-drag-handle {
+      border: 0;
+      padding: 3px 0;
+      background: transparent;
+      color: rgba(37,35,31,.42);
+      font-size: 15px;
+      line-height: 1;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .todo-drag-handle:active { cursor: grabbing; }
 
     .todo-check {
       appearance: none;
@@ -320,6 +350,8 @@ HTML = r'''<!doctype html>
     .todo-item.completed .todo-text { color: rgba(70,68,64,.50) !important; text-decoration: line-through; text-decoration-thickness: 1.5px; }
 
     .todo-priority { width: 52px; min-height: 25px; padding: 0 3px; font-size: 11px; }
+    .todo-order-actions { display: flex; gap: 2px; }
+    .todo-order-button { width: 23px; height: 25px; border-radius: 7px; font-size: 12px; }
     .todo-delete { opacity: 0; }
     .todo-item:hover .todo-delete, .todo-delete:focus-visible { opacity: 1; }
 
@@ -426,7 +458,9 @@ HTML = r'''<!doctype html>
       .save-status { font-size: 11px; }
       .brand-copy p { display: none; }
       .hero { align-items: stretch; flex-direction: column; padding: 20px 0; }
+      .hero-actions { align-items: stretch; flex-direction: column-reverse; }
       .hero .primary-button { width: 100%; }
+      .hero .clear-all-button { width: 100%; }
       .board { grid-template-columns: 1fr; gap: 18px; }
       .project-card:hover { transform: none; }
       .todo-delete { opacity: .65; }
@@ -457,7 +491,10 @@ HTML = r'''<!doctype html>
       <div>
         <p class="hero-meta" id="boardStats">Loading projects…</p>
       </div>
-      <button class="primary-button" id="addProjectButton" type="button"><span class="plus">＋</span><span id="addProjectText">Add a project</span></button>
+      <div class="hero-actions">
+        <button class="clear-all-button" id="clearAllButton" type="button" disabled><span id="clearAllText">Clear all</span></button>
+        <button class="primary-button" id="addProjectButton" type="button"><span class="plus">＋</span><span id="addProjectText">Add a project</span></button>
+      </div>
     </section>
 
     <section class="board" id="board" aria-label="Project note board"></section>
@@ -511,6 +548,7 @@ HTML = r'''<!doctype html>
         loading: 'Loading…',
         loadingProjects: 'Loading projects…',
         addProject: 'Add a project',
+        clearAll: 'Clear all',
         boardLabel: 'Project note board',
         modalTitle: 'Add a project',
         modalDescription: 'Give it a recognizable name. You can edit it at any time.',
@@ -540,7 +578,11 @@ HTML = r'''<!doctype html>
         dragSort: 'Drag to reorder',
         moveEarlier: 'Move earlier',
         changeColor: 'Change note color',
-        deleteProject: 'Delete project',
+        clearProject: 'Clear project',
+        clearTodos: 'Clear all tasks',
+        dragTodo: 'Drag to reorder task',
+        moveTodoUp: 'Move task up',
+        moveTodoDown: 'Move task down',
         toggleTodo: 'Mark task as completed',
         todoContent: 'Task content',
         todoPriority: 'Task priority',
@@ -560,9 +602,14 @@ HTML = r'''<!doctype html>
         cacheLoaded: 'Local data loaded',
         loadFailed: 'Could not load data. Refresh the page.',
         projectAdded: 'Project added to the board',
-        confirmDeleteProject: name => `Delete “${name}” and all of its tasks?`,
-        projectDeleted: 'Project deleted',
+        confirmClearAll: 'Clear every project and task from this board? This cannot be undone.',
+        allCleared: 'All projects cleared',
+        confirmClearProject: name => `Clear “${name}” and all of its tasks? This removes the project.`,
+        projectCleared: 'Project cleared',
+        confirmClearTodos: name => `Clear all tasks in “${name}”? The project will remain.`,
+        todosCleared: 'Project tasks cleared',
         orderUpdated: 'Project order updated',
+        todoOrderUpdated: 'Task order updated',
         switchLanguage: '切换到中文',
         languageButton: '中文'
       },
@@ -572,6 +619,7 @@ HTML = r'''<!doctype html>
         loading: '正在读取…',
         loadingProjects: '载入项目中…',
         addProject: '贴一个新项目',
+        clearAll: '清空全部',
         boardLabel: '项目便签板',
         modalTitle: '贴一个新项目',
         modalDescription: '先给它一个容易辨认的名字，之后随时都能修改。',
@@ -601,7 +649,11 @@ HTML = r'''<!doctype html>
         dragSort: '拖动排序',
         moveEarlier: '向前移动',
         changeColor: '更换便签颜色',
-        deleteProject: '删除项目',
+        clearProject: '清空项目',
+        clearTodos: '清空全部待办',
+        dragTodo: '拖动调整待办顺序',
+        moveTodoUp: '上移待办',
+        moveTodoDown: '下移待办',
         toggleTodo: '标记待办完成',
         todoContent: '待办内容',
         todoPriority: '待办优先级',
@@ -621,9 +673,14 @@ HTML = r'''<!doctype html>
         cacheLoaded: '已读取本地缓存',
         loadFailed: '读取失败，请刷新页面',
         projectAdded: '项目已贴到流转板',
-        confirmDeleteProject: name => `删除项目“${name}”及其中所有待办？`,
-        projectDeleted: '项目已删除',
+        confirmClearAll: '确定清空页面中的所有项目和待办吗？此操作无法撤销。',
+        allCleared: '已清空全部项目',
+        confirmClearProject: name => `确定清空项目“${name}”及其中所有待办吗？项目本身也会被删除。`,
+        projectCleared: '已清空项目',
+        confirmClearTodos: name => `确定清空项目“${name}”中的全部待办吗？项目本身会保留。`,
+        todosCleared: '已清空项目待办',
         orderUpdated: '项目顺序已更新',
+        todoOrderUpdated: '待办顺序已更新',
         switchLanguage: 'Switch to English',
         languageButton: 'EN'
       }
@@ -652,6 +709,7 @@ HTML = r'''<!doctype html>
     let saveTimer = null;
     let saveQueue = Promise.resolve();
     let draggedProjectId = null;
+    let draggedTodo = null;
     let saveStateInfo = { kind: '', key: 'loading', args: [] };
 
     const board = document.getElementById('board');
@@ -663,6 +721,7 @@ HTML = r'''<!doctype html>
     const saveText = document.getElementById('saveText');
     const toast = document.getElementById('toast');
     const languageButton = document.getElementById('languageButton');
+    const clearAllButton = document.getElementById('clearAllButton');
 
     function id(prefix) {
       return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -699,6 +758,9 @@ HTML = r'''<!doctype html>
       document.title = t('pageTitle');
       document.getElementById('brandTagline').textContent = t('tagline');
       document.getElementById('addProjectText').textContent = t('addProject');
+      document.getElementById('clearAllText').textContent = t('clearAll');
+      clearAllButton.title = t('clearAll');
+      clearAllButton.setAttribute('aria-label', t('clearAll'));
       board.setAttribute('aria-label', t('boardLabel'));
       document.getElementById('modalTitle').textContent = t('modalTitle');
       document.getElementById('modalDescription').textContent = t('modalDescription');
@@ -754,6 +816,7 @@ HTML = r'''<!doctype html>
       const totalTodos = state.projects.reduce((sum, project) => sum + project.todos.length, 0);
       const completedTodos = state.projects.reduce((sum, project) => sum + project.todos.filter(todo => todo.completed).length, 0);
       const openTodos = totalTodos - completedTodos;
+      clearAllButton.disabled = state.projects.length === 0;
       stats.textContent = state.projects.length
         ? t('stats', state.projects.length, openTodos, completedTodos)
         : t('firstProjectHint');
@@ -767,11 +830,16 @@ HTML = r'''<!doctype html>
 
       board.innerHTML = state.projects.map((project, index) => {
         const completed = project.todos.filter(todo => todo.completed).length;
-        const todos = project.todos.map(todo => `
+        const todos = project.todos.map((todo, todoIndex) => `
           <div class="todo-item ${todo.completed ? 'completed' : ''}" data-project-id="${escapeHtml(project.id)}" data-todo-id="${escapeHtml(todo.id)}" data-priority="${todo.priority}">
+            <button class="todo-drag-handle" draggable="true" type="button" title="${t('dragTodo')}" aria-label="${t('dragTodo')}">⠿</button>
             <input class="todo-check" data-action="toggle-todo" type="checkbox" ${todo.completed ? 'checked' : ''} aria-label="${t('toggleTodo')}">
             <input class="todo-text" data-action="edit-todo" maxlength="160" value="${escapeHtml(todo.text)}" aria-label="${t('todoContent')}">
             <select class="todo-priority" data-action="todo-priority" aria-label="${t('todoPriority')}">${priorityOptions(todo.priority, TODO_PRIORITIES, 'todo')}</select>
+            <span class="todo-order-actions">
+              <button class="icon-button todo-order-button" data-action="move-todo-up" type="button" title="${t('moveTodoUp')}" aria-label="${t('moveTodoUp')}" ${todoIndex === 0 ? 'disabled' : ''}>↑</button>
+              <button class="icon-button todo-order-button" data-action="move-todo-down" type="button" title="${t('moveTodoDown')}" aria-label="${t('moveTodoDown')}" ${todoIndex === project.todos.length - 1 ? 'disabled' : ''}>↓</button>
+            </span>
             <button class="icon-button danger todo-delete" data-action="delete-todo" type="button" title="${t('deleteTodo')}" aria-label="${t('deleteTodo')}">×</button>
           </div>`).join('');
 
@@ -782,7 +850,8 @@ HTML = r'''<!doctype html>
               <div class="head-actions">
                 <button class="icon-button" data-action="move-left" type="button" title="${t('moveEarlier')}" aria-label="${t('moveEarlier')}" ${index === 0 ? 'disabled' : ''}>←</button>
                 <button class="icon-button" data-action="cycle-color" type="button" title="${t('changeColor')}" aria-label="${t('changeColor')}">◐</button>
-                <button class="icon-button danger" data-action="delete-project" type="button" title="${t('deleteProject')}" aria-label="${t('deleteProject')}">×</button>
+                <button class="icon-button danger" data-action="clear-todos" type="button" title="${t('clearTodos')}" aria-label="${t('clearTodos')}" ${project.todos.length ? '' : 'disabled'}>⌫</button>
+                <button class="icon-button danger" data-action="clear-project" type="button" title="${t('clearProject')}" aria-label="${t('clearProject')}">×</button>
               </div>
             </div>
             <input class="project-title" data-action="edit-project" maxlength="80" value="${escapeHtml(project.name)}" aria-label="${t('projectName')}">
@@ -809,6 +878,17 @@ HTML = r'''<!doctype html>
 
     function findTodo(projectId, todoId) {
       return findProject(projectId)?.todos.find(todo => todo.id === todoId);
+    }
+
+    function moveTodo(project, todoId, targetIndex) {
+      const from = project.todos.findIndex(todo => todo.id === todoId);
+      const to = Math.max(0, Math.min(targetIndex, project.todos.length - 1));
+      if (from < 0 || from === to) return;
+      const [moved] = project.todos.splice(from, 1);
+      project.todos.splice(to, 0, moved);
+      render();
+      scheduleSave();
+      showToast(t('todoOrderUpdated'));
     }
 
     function scheduleSave() {
@@ -860,6 +940,14 @@ HTML = r'''<!doctype html>
       applyLanguage();
     });
 
+    clearAllButton.addEventListener('click', () => {
+      if (!state.projects.length || !confirm(t('confirmClearAll'))) return;
+      state.projects = [];
+      render();
+      scheduleSave();
+      showToast(t('allCleared'));
+    });
+
     document.getElementById('addProjectButton').addEventListener('click', openModal);
     document.getElementById('cancelModal').addEventListener('click', closeModal);
     modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
@@ -907,10 +995,20 @@ HTML = r'''<!doctype html>
       const project = findProject(projectId);
       const action = actionNode.dataset.action;
 
-      if (action === 'delete-project' && project) {
-        if (!confirm(t('confirmDeleteProject', project.name))) return;
+      if (action === 'move-todo-up' && project && todoId) {
+        const from = project.todos.findIndex(todo => todo.id === todoId);
+        moveTodo(project, todoId, from - 1);
+      } else if (action === 'move-todo-down' && project && todoId) {
+        const from = project.todos.findIndex(todo => todo.id === todoId);
+        moveTodo(project, todoId, from + 1);
+      } else if (action === 'clear-project' && project) {
+        if (!confirm(t('confirmClearProject', project.name))) return;
         state.projects = state.projects.filter(item => item.id !== projectId);
-        render(); scheduleSave(); showToast(t('projectDeleted'));
+        render(); scheduleSave(); showToast(t('projectCleared'));
+      } else if (action === 'clear-todos' && project && project.todos.length) {
+        if (!confirm(t('confirmClearTodos', project.name))) return;
+        project.todos = [];
+        render(); scheduleSave(); showToast(t('todosCleared'));
       } else if (action === 'delete-todo' && project) {
         project.todos = project.todos.filter(todo => todo.id !== todoId);
         render(); scheduleSave();
@@ -955,16 +1053,38 @@ HTML = r'''<!doctype html>
     });
 
     board.addEventListener('dragstart', event => {
+      const todoHandle = event.target.closest('.todo-drag-handle');
+      if (todoHandle) {
+        const todoNode = todoHandle.closest('.todo-item');
+        draggedTodo = { projectId: todoNode.dataset.projectId, todoId: todoNode.dataset.todoId };
+        draggedProjectId = null;
+        todoNode.classList.add('todo-dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', `todo:${draggedTodo.todoId}`);
+        return;
+      }
+
       const handle = event.target.closest('.drag-handle');
       if (!handle) return;
       const card = handle.closest('.project-card');
       draggedProjectId = card.dataset.projectId;
+      draggedTodo = null;
       card.classList.add('dragging');
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', draggedProjectId);
     });
 
     board.addEventListener('dragover', event => {
+      if (draggedTodo) {
+        const todoNode = event.target.closest('.todo-item');
+        if (!todoNode || todoNode.dataset.projectId !== draggedTodo.projectId || todoNode.dataset.todoId === draggedTodo.todoId) return;
+        event.preventDefault();
+        board.querySelectorAll('.todo-drag-over').forEach(node => node.classList.remove('todo-drag-over'));
+        todoNode.classList.add('todo-drag-over');
+        event.dataTransfer.dropEffect = 'move';
+        return;
+      }
+
       const card = event.target.closest('.project-card');
       if (!card || card.dataset.projectId === draggedProjectId) return;
       event.preventDefault();
@@ -974,6 +1094,18 @@ HTML = r'''<!doctype html>
     });
 
     board.addEventListener('drop', event => {
+      if (draggedTodo) {
+        const todoNode = event.target.closest('.todo-item');
+        if (!todoNode || todoNode.dataset.projectId !== draggedTodo.projectId || todoNode.dataset.todoId === draggedTodo.todoId) return;
+        event.preventDefault();
+        const project = findProject(draggedTodo.projectId);
+        const targetIndex = project.todos.findIndex(todo => todo.id === todoNode.dataset.todoId);
+        const todoId = draggedTodo.todoId;
+        draggedTodo = null;
+        moveTodo(project, todoId, targetIndex);
+        return;
+      }
+
       const card = event.target.closest('.project-card');
       if (!card || !draggedProjectId || card.dataset.projectId === draggedProjectId) return;
       event.preventDefault();
@@ -981,12 +1113,14 @@ HTML = r'''<!doctype html>
       const to = state.projects.findIndex(project => project.id === card.dataset.projectId);
       const [moved] = state.projects.splice(from, 1);
       state.projects.splice(to, 0, moved);
+      draggedProjectId = null;
       render(); scheduleSave(); showToast(t('orderUpdated'));
     });
 
     board.addEventListener('dragend', () => {
       draggedProjectId = null;
-      board.querySelectorAll('.dragging, .drag-over').forEach(node => node.classList.remove('dragging', 'drag-over'));
+      draggedTodo = null;
+      board.querySelectorAll('.dragging, .drag-over, .todo-dragging, .todo-drag-over').forEach(node => node.classList.remove('dragging', 'drag-over', 'todo-dragging', 'todo-drag-over'));
     });
 
     applyLanguage();

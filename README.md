@@ -44,7 +44,8 @@ The three product principles are:
 - Small todo lists inside every project
 - Four color-coded todo priorities
 - One-click completion with a muted strikethrough state
-- Drag-and-drop project ordering, plus an accessible move button
+- Drag-and-drop ordering for projects and todos, with accessible move buttons
+- One-click clearing for the whole board, a single project, or only its tasks
 - Automatic saving after every change
 - Plain JSON data stored beside the script
 - English and Chinese interfaces with remembered language preference
