@@ -1033,6 +1033,13 @@ HTML = r'''<!doctype html>
       const todo = findTodo(card?.dataset.projectId, todoNode?.dataset.todoId);
       if (action === 'toggle-todo' && todo) {
         todo.completed = node.checked;
+        if (node.checked && project) {
+          const completedIndex = project.todos.findIndex(item => item.id === todo.id);
+          if (completedIndex >= 0 && completedIndex < project.todos.length - 1) {
+            const [completedTodo] = project.todos.splice(completedIndex, 1);
+            project.todos.push(completedTodo);
+          }
+        }
         render(); scheduleSave();
       } else if (action === 'edit-project' && project) {
         const value = node.value.trim();

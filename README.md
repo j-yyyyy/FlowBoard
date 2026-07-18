@@ -43,7 +43,7 @@ The three product principles are:
 - Project notes with editable names, colors, and priority levels
 - Small todo lists inside every project
 - Four color-coded todo priorities
-- One-click completion with a muted strikethrough state
+- One-click completion with a muted strikethrough state and automatic move to the bottom
 - Drag-and-drop ordering for projects and todos, with accessible move buttons
 - One-click clearing for the whole board, a single project, or only its tasks
 - Automatic saving after every change
