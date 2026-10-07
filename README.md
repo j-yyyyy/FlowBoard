@@ -44,7 +44,10 @@ The three product principles are:
 - Small todo lists inside every project
 - Four color-coded todo priorities
 - One-click completion with a muted strikethrough state and automatic move to the bottom
+- New todos are inserted above completed todos automatically
 - Drag-and-drop ordering for projects and todos, with accessible move buttons
+- A global priority queue that collects every open todo for cross-project ordering
+- Drag tasks in the priority queue or use its move buttons; priority changes stay in sync with project notes
 - One-click clearing for the whole board, a single project, or only its tasks
 - Automatic saving after every change
 - Plain JSON data stored beside the script
@@ -99,7 +102,7 @@ Each project contains its own focused todo list. Assign a priority to make urgen
 
 ### 3. Keep the board current
 
-Check off completed work, edit text inline, change colors, and drag project notes into the order that matches your attention.
+Check off completed work, edit text inline, change colors, and drag project notes into the order that matches your attention. The priority panel on the right gathers every open task, so you can arrange one clear execution order across all projects.
 
 Every change is saved automatically.
 
@@ -155,7 +158,7 @@ Please avoid introducing a build system, framework, database, or mandatory depen
 
 **FlowBoard——让每个流转中的项目，都留在视线里。**
 
-FlowBoard 是一个本地优先的极简项目流转板，适合经常在多个项目之间切换的人。比如项目 A 正在训练时去处理项目 B，随后又开始项目 C；FlowBoard 会把每个项目及其下一步操作持续放在眼前，减少忘记测评、回访或收尾工作的情况。
+FlowBoard 是一个本地优先的极简项目流转板，适合经常在多个项目之间切换的人。比如项目 A 正在训练时去处理项目 B，随后又开始项目 C；FlowBoard 会把每个项目及其下一步操作持续放在眼前，减少忘记测评、回访或收尾工作的情况。页面右侧的全局优先级顺序会自动汇总所有未完成待办，并支持拖动排序，方便你跨项目决定下一件要做的事。
 
 它只有一个 Python 脚本，不需要安装第三方依赖、数据库、Docker，也不需要注册账号：
 

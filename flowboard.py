@@ -27,19 +27,19 @@ HTML = r'''<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3efe5">
+  <meta name="theme-color" content="#fafaf9">
   <title>FlowBoard · Project Flow Board</title>
   <style>
     :root {
-      --ink: #25231f;
-      --muted: #777168;
-      --paper: #f4f0e7;
-      --paper-deep: #e8e1d4;
-      --line: rgba(50, 45, 37, .14);
+      --ink: #1c1c1e;
+      --muted: #737376;
+      --paper: #fafaf9;
+      --paper-deep: #efefed;
+      --line: #dededb;
       --accent: #ee6c4d;
-      --white: #fffdf8;
-      --shadow: 0 18px 42px rgba(56, 49, 38, .12), 0 2px 8px rgba(56, 49, 38, .08);
-      --radius: 18px;
+      --white: #ffffff;
+      --shadow: 0 8px 32px rgba(0, 0, 0, .05);
+      --radius: 8px;
     }
 
     * { box-sizing: border-box; }
@@ -50,14 +50,9 @@ HTML = r'''<!doctype html>
       min-height: 100vh;
       margin: 0;
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background:
-        radial-gradient(circle at 8% 4%, rgba(238, 108, 77, .10), transparent 24rem),
-        radial-gradient(circle at 90% 12%, rgba(69, 123, 157, .09), transparent 27rem),
-        linear-gradient(rgba(71, 64, 54, .035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(71, 64, 54, .035) 1px, transparent 1px),
-        var(--paper);
-      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+      font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
     }
 
     button, input, select { font: inherit; }
@@ -68,7 +63,7 @@ HTML = r'''<!doctype html>
       outline-offset: 2px;
     }
 
-    .app-shell { width: min(1600px, 100%); margin: 0 auto; padding: 28px 32px 48px; }
+    .app-shell { width: min(1600px, 100%); margin: 0 auto; padding: 30px 48px 64px; }
 
     .topbar {
       display: flex;
@@ -84,19 +79,17 @@ HTML = r'''<!doctype html>
     .brand-mark {
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 13px 13px 13px 5px;
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
       background: var(--ink);
       color: var(--white);
       font-weight: 900;
-      font-size: 20px;
-      transform: rotate(-2deg);
-      box-shadow: 5px 5px 0 rgba(238, 108, 77, .7);
+      font-size: 19px;
     }
 
-    .brand-copy h1 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: 25px; letter-spacing: -.02em; }
-    .brand-copy p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .brand-copy h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.055em; }
+    .brand-copy p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
 
     .save-status {
       display: inline-flex;
@@ -107,7 +100,7 @@ HTML = r'''<!doctype html>
       white-space: nowrap;
     }
 
-    .save-dot { width: 8px; height: 8px; border-radius: 50%; background: #5f9c78; box-shadow: 0 0 0 4px rgba(95, 156, 120, .12); }
+    .save-dot { width: 6px; height: 6px; border-radius: 50%; background: #649377; }
     .save-status.saving .save-dot { background: #dc9f3c; animation: pulse 1s infinite; }
     .save-status.error .save-dot { background: #c94f4f; }
 
@@ -118,8 +111,8 @@ HTML = r'''<!doctype html>
       height: 34px;
       padding: 0 10px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255, 253, 248, .58);
+      border-radius: 6px;
+      background: transparent;
       color: var(--ink);
       font-size: 12px;
       font-weight: 800;
@@ -134,10 +127,11 @@ HTML = r'''<!doctype html>
       justify-content: space-between;
       align-items: center;
       gap: 28px;
-      padding: 24px 0;
+      padding: 40px 0 28px;
     }
 
-    .hero-meta { margin: 0; color: var(--muted); font-size: 14px; }
+    .hero-meta { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .board-heading { margin: 0 0 8px; font-size: 30px; font-weight: 600; letter-spacing: -.055em; line-height: 1.15; }
 
     .hero-actions { display: flex; align-items: center; gap: 12px; }
 
@@ -146,77 +140,133 @@ HTML = r'''<!doctype html>
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 44px;
+      min-height: 38px;
       padding: 0 18px;
       border: 0;
-      border-radius: 13px;
+      border-radius: 7px;
       background: var(--ink);
       color: white;
-      font-weight: 700;
-      box-shadow: 0 7px 0 #c95b42;
+      font-size: 13px;
+      font-weight: 650;
+      box-shadow: none;
       transition: transform .15s, box-shadow .15s;
     }
 
-    .primary-button:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #c95b42; }
-    .primary-button:active { transform: translateY(5px); box-shadow: 0 2px 0 #c95b42; }
+    .primary-button:hover { transform: translateY(-1px); background: #363638; }
+    .primary-button:active { transform: translateY(1px); box-shadow: none; }
     .primary-button .plus { font-size: 22px; line-height: 1; }
 
     .clear-all-button {
-      min-height: 44px;
+      min-height: 38px;
       padding: 0 16px;
-      border: 1px solid rgba(158, 49, 49, .28);
-      border-radius: 13px;
-      background: rgba(255, 253, 248, .58);
-      color: #9e3131;
-      font-weight: 750;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
     }
 
     .clear-all-button:hover:not(:disabled) { background: rgba(174, 54, 54, .10); }
     .clear-all-button:disabled, .icon-button:disabled { cursor: not-allowed; opacity: .38; }
 
-    .board {
+    .workspace {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
+      grid-template-columns: minmax(0, 1fr) 300px;
       align-items: start;
-      gap: 24px;
+      gap: 40px;
     }
 
+    .board {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+      gap: 0;
+    }
+
+    .priority-panel {
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 22px 0 0 26px;
+      border: 0;
+      border-top: 1px solid var(--ink);
+      border-left: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      scrollbar-width: thin;
+      scrollbar-color: #d4dbe3 transparent;
+    }
+
+    .priority-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .priority-panel h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.035em; }
+    .priority-panel-count { flex: 0 0 auto; padding: 4px 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .priority-panel-description { margin: 10px 0 16px; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .priority-list { display: grid; gap: 0; }
+
+    .priority-item {
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      align-items: start;
+      gap: 9px 10px;
+      padding: 17px 0 15px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      transition: opacity .15s, box-shadow .15s, transform .15s;
+    }
+
+    .priority-item.priority-dragging { opacity: .38; }
+    .priority-item.priority-drag-over { box-shadow: inset 0 2px 0 rgba(37,35,31,.45); transform: translateY(1px); }
+    .priority-item:hover { background: #f2f2f0; }
+    .priority-rank { padding-top: 2px; color: #969695; font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; }
+    .priority-item:first-child .priority-rank { color: var(--ink); }
+    .priority-item-main { min-width: 0; }
+    .priority-item-text { overflow-wrap: anywhere; color: #456174; font-size: 13px; font-weight: 500; line-height: 1.6; }
+    .priority-item[data-priority="urgent"] .priority-item-text { color: #b63f3f; font-weight: 750; }
+    .priority-item[data-priority="high"] .priority-item-text { color: #a85e24; }
+    .priority-item[data-priority="low"] .priority-item-text { color: #696f6c; font-weight: 550; }
+    .priority-item-project { overflow-wrap: anywhere; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .priority-item-project::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 2px; background: var(--note-accent); }
+    .priority-item-actions { grid-column: 2; display: flex; gap: 4px; align-items: center; }
+    .priority-item .todo-priority { width: 60px; margin-right: auto; text-align: left; }
+    .priority-drag-handle { cursor: grab; }
+    .priority-drag-handle:active { cursor: grabbing; }
+    .priority-empty { padding: 24px 10px; border: 1px dashed rgba(63,56,46,.20); border-radius: 12px; color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; }
+
     .project-card {
-      --note: #f6df86;
-      --note-soft: #fff7cf;
+      display: grid;
+      grid-template-columns: minmax(150px, .38fr) minmax(0, 1fr);
+      gap: 28px;
       position: relative;
       min-width: 0;
-      overflow: hidden;
-      border: 1px solid rgba(58, 51, 41, .13);
-      border-radius: var(--radius) var(--radius) 8px var(--radius);
-      background: linear-gradient(140deg, var(--note-soft), var(--note));
-      box-shadow: var(--shadow);
+      padding: 24px 0 28px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
       transition: transform .18s, box-shadow .18s, opacity .18s;
     }
 
-    .project-card::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, rgba(255,255,255,.05) 50%, rgba(69,60,46,.12) 51%);
-      pointer-events: none;
-    }
-
-    .project-card:hover { transform: translateY(-3px) rotate(.15deg); box-shadow: 0 22px 50px rgba(56, 49, 38, .16); }
+    .project-card:first-child { border-top-color: var(--ink); }
     .project-card.dragging { opacity: .42; transform: scale(.98); }
     .project-card.drag-over { box-shadow: 0 0 0 4px rgba(37, 35, 31, .22), var(--shadow); }
 
-    .note-yellow { --note: #f4d86e; --note-soft: #fff5bd; }
-    .note-blue { --note: #9ed4e7; --note-soft: #dff4fb; }
-    .note-green { --note: #a8d9ad; --note-soft: #e2f4df; }
-    .note-rose { --note: #efa9ac; --note-soft: #ffe0df; }
-    .note-lilac { --note: #c9b5e9; --note-soft: #eee3fb; }
+    .note-yellow { --note: #e9dba8; --note-soft: #fff9e8; --note-accent: #c29a37; }
+    .note-blue { --note: #bfd8ed; --note-soft: #eff7ff; --note-accent: #5b92c1; }
+    .note-green { --note: #bfdcc9; --note-soft: #f0f8f2; --note-accent: #609477; }
+    .note-rose { --note: #edc6ce; --note-soft: #fff2f4; --note-accent: #c47c8d; }
+    .note-lilac { --note: #d4c8e8; --note-soft: #f6f2fd; --note-accent: #9780bd; }
 
-    .card-head { padding: 17px 19px 15px; border-bottom: 1px solid rgba(58, 51, 41, .12); }
-    .card-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 29px; }
+    .card-head { min-width: 0; padding: 0; }
+    .card-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+    .project-index { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .project-index::before { content: ""; width: 16px; height: 3px; background: var(--note-accent); }
+    .drag-label { display: none; }
 
     .drag-handle {
       display: inline-flex;
@@ -225,79 +275,88 @@ HTML = r'''<!doctype html>
       padding: 4px 6px 4px 2px;
       border: 0;
       background: transparent;
-      color: rgba(37,35,31,.58);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .04em;
+      color: #737d88;
+      font-size: 11px;
+      font-weight: 500;
       cursor: grab;
       user-select: none;
     }
 
     .drag-handle:active { cursor: grabbing; }
     .grip { font-size: 17px; letter-spacing: -4px; transform: rotate(90deg); }
-    .head-actions { display: flex; align-items: center; gap: 5px; }
+    .head-actions { display: flex; align-items: center; gap: 1px; }
 
     .icon-button {
       display: grid;
       place-items: center;
-      width: 29px;
-      height: 29px;
+      width: 24px;
+      height: 24px;
       padding: 0;
       border: 0;
-      border-radius: 9px;
-      background: rgba(255,255,255,.34);
-      color: rgba(37,35,31,.68);
+      border-radius: 7px;
+      background: transparent;
+      color: #8b8b8d;
+      transition: background .15s, color .15s;
     }
 
-    .icon-button:hover { background: rgba(255,255,255,.65); color: var(--ink); }
+    .icon-button:hover { background: #eaeae7; color: var(--ink); }
     .icon-button.danger:hover { background: rgba(174,54,54,.13); color: #9e3131; }
 
     .project-title {
       width: 100%;
-      margin-top: 13px;
-      padding: 1px 0 4px;
+      margin-top: 12px;
+      padding: 1px 0 5px;
       border: 0;
       border-bottom: 1px solid transparent;
       outline: 0;
       background: transparent;
       color: var(--ink);
-      font-family: Georgia, "Songti SC", serif;
-      font-size: 25px;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -.04em;
     }
 
     .project-title:hover, .project-title:focus { border-bottom-color: rgba(37,35,31,.25); }
 
-    .project-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 11px; }
-    .progress { color: rgba(37,35,31,.62); font-size: 12px; font-weight: 600; }
+    .project-meta { display: flex; align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .progress { color: var(--muted); font-size: 11px; font-weight: 400; font-variant-numeric: tabular-nums; }
 
     .priority-select, .todo-priority {
       appearance: none;
-      border: 1px solid rgba(45,40,33,.14);
-      border-radius: 999px;
-      background: rgba(255,255,255,.43);
-      color: var(--ink);
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 400;
       text-align: center;
     }
 
     .priority-select { min-height: 29px; padding: 0 26px 0 10px; background-image: linear-gradient(45deg, transparent 50%, #5d574f 50%), linear-gradient(135deg, #5d574f 50%, transparent 50%); background-position: calc(100% - 12px) 12px, calc(100% - 8px) 12px; background-size: 4px 4px; background-repeat: no-repeat; }
 
-    .card-body { padding: 10px 13px 18px; }
-    .todo-list { display: grid; gap: 4px; min-height: 8px; }
+    .priority-select { background-color: #efefed; }
+    .todo-priority:hover, .todo-priority:focus { background: #ececea; }
+    .card-body { min-width: 0; padding: 0; }
+    .todo-list { display: grid; gap: 0; min-height: 8px; }
 
     .todo-item {
       display: grid;
-      grid-template-columns: 16px 24px minmax(0, 1fr) auto 48px 26px;
+      grid-template-columns: 12px 18px minmax(0, 1fr) 56px 44px 20px;
       align-items: center;
       gap: 6px;
-      min-height: 42px;
-      padding: 5px 5px;
-      border-radius: 11px;
+      min-height: 45px;
+      padding: 8px 2px;
+      border-radius: 5px;
+      background: transparent;
     }
 
-    .todo-item:hover { background: rgba(255,255,255,.28); }
+    .todo-item:hover, .todo-item:focus-within { background: #f0f0ed; }
+    .todo-item > .todo-drag-handle { grid-column: 1; grid-row: 1; }
+    .todo-item > .todo-check { grid-column: 2; grid-row: 1; }
+    .todo-item > .todo-text { grid-column: 3; grid-row: 1; width: 100%; }
+    .todo-item > .todo-priority { grid-column: 4; grid-row: 1; }
+    .todo-item > .todo-order-actions { grid-column: 5; grid-row: 1; justify-self: end; }
+    .todo-item > .todo-delete { grid-column: 6; grid-row: 1; width: 20px; }
     .todo-item.todo-dragging { opacity: .38; }
     .todo-item.todo-drag-over { background: rgba(255,255,255,.54); box-shadow: inset 0 2px 0 rgba(37,35,31,.38); }
 
@@ -321,14 +380,14 @@ HTML = r'''<!doctype html>
       width: 18px;
       height: 18px;
       margin: 0;
-      border: 1.5px solid rgba(37,35,31,.58);
-      border-radius: 5px;
-      background: rgba(255,255,255,.30);
+      border: 1px solid #b4b4b6;
+      border-radius: 50%;
+      background: rgba(255,255,255,.80);
       cursor: pointer;
     }
 
     .todo-check::before { content: "✓"; color: white; font-size: 13px; font-weight: 900; transform: scale(0); transition: transform .12s; }
-    .todo-check:checked { border-color: #5c7563; background: #5c7563; }
+    .todo-check:checked { border-color: #8c8c8d; background: #8c8c8d; }
     .todo-check:checked::before { transform: scale(1); }
 
     .todo-text {
@@ -338,45 +397,50 @@ HTML = r'''<!doctype html>
       border-bottom: 1px solid transparent;
       background: transparent;
       color: #486f9a;
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.35;
     }
 
-    .todo-text:hover, .todo-text:focus { border-bottom-color: rgba(37,35,31,.18); outline: 0; }
-    .todo-item[data-priority="urgent"] .todo-text { color: #b63f3f; font-weight: 700; }
-    .todo-item[data-priority="high"] .todo-text { color: #a85e24; font-weight: 650; }
-    .todo-item[data-priority="medium"] .todo-text { color: #3d6f91; }
+    .todo-text:hover, .todo-text:focus { border-bottom-color: rgba(37,35,31,.18); }
+    .todo-item[data-priority="urgent"] .todo-text { color: #a4443c; font-weight: 550; }
+    .todo-item[data-priority="high"] .todo-text { color: #826242; font-weight: 500; }
+    .todo-item[data-priority="medium"] .todo-text { color: #456174; }
     .todo-item[data-priority="low"] .todo-text { color: #696f6c; }
-    .todo-item.completed .todo-text { color: rgba(70,68,64,.50) !important; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+    .todo-item.completed { background: transparent; }
+    .todo-item.completed .todo-text { color: #7d8792 !important; text-decoration: line-through; text-decoration-thickness: 1px; }
 
-    .todo-priority { width: 52px; min-height: 25px; padding: 0 3px; font-size: 11px; }
+    .todo-priority { width: 56px; min-height: 26px; padding: 0 3px; font-size: 11px; }
     .todo-order-actions { display: flex; gap: 2px; }
-    .todo-order-button { width: 23px; height: 25px; border-radius: 7px; font-size: 12px; }
-    .todo-delete { opacity: 0; }
+    .todo-order-button { width: 21px; height: 26px; border-radius: 5px; font-size: 11px; }
+    .todo-delete, .todo-order-actions, .todo-drag-handle { opacity: .28; transition: opacity .15s; }
+    .todo-item:hover .todo-order-actions, .todo-item:focus-within .todo-order-actions, .todo-item:hover .todo-drag-handle, .todo-item:focus-within .todo-drag-handle { opacity: 1; }
     .todo-item:hover .todo-delete, .todo-delete:focus-visible { opacity: 1; }
 
     .add-todo-form {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 70px 34px;
+      grid-template-columns: minmax(0, 1fr) 64px 34px;
       gap: 7px;
-      margin-top: 10px;
-      padding: 10px 6px 1px;
-      border-top: 1px dashed rgba(37,35,31,.18);
+      margin-top: 8px;
+      padding: 9px 0 0;
+      border-top: 1px solid #ebebe8;
+      align-items: center;
     }
 
     .add-todo-input {
       min-width: 0;
       height: 35px;
       padding: 0 10px;
-      border: 1px solid rgba(45,40,33,.14);
-      border-radius: 10px;
-      background: rgba(255,255,255,.38);
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
       color: var(--ink);
+      font-size: 12px;
     }
 
-    .add-todo-input::placeholder { color: rgba(37,35,31,.48); }
-    .add-todo-button { width: 34px; height: 34px; border: 0; border-radius: 10px; background: rgba(37,35,31,.88); color: white; font-size: 20px; }
-    .add-todo-button:hover { background: var(--ink); }
+    .add-todo-input::placeholder { color: #929293; }
+    .add-todo-input:focus { background: white; border-color: var(--line); }
+    .add-todo-button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--ink); font-size: 18px; }
+    .add-todo-button:hover { background: var(--ink); color: white; }
 
     .empty-state {
       grid-column: 1 / -1;
@@ -384,13 +448,14 @@ HTML = r'''<!doctype html>
       place-items: center;
       min-height: 340px;
       padding: 40px;
-      border: 2px dashed rgba(63,56,46,.17);
-      border-radius: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.55);
       text-align: center;
     }
 
-    .empty-note { display: grid; align-content: center; width: 180px; min-height: 135px; padding: 24px 20px; background: #f5d96f; box-shadow: 10px 12px 0 rgba(80,65,40,.10); transform: rotate(-3deg); }
-    .empty-note strong { display: block; font-family: Georgia, "Songti SC", serif; font-size: 20px; line-height: 1.15; }
+    .empty-note { display: grid; align-content: center; width: min(280px, 100%); min-height: 150px; padding: 26px 0; }
+    .empty-note strong { display: block; font-size: 19px; line-height: 1.4; }
     .empty-note span { display: block; margin-top: 13px; color: rgba(37,35,31,.62); font-size: 13px; line-height: 1.4; }
 
     .modal-backdrop {
@@ -410,15 +475,15 @@ HTML = r'''<!doctype html>
       width: min(440px, 100%);
       padding: 26px;
       border: 1px solid rgba(255,255,255,.55);
-      border-radius: 22px;
+      border-radius: 14px;
       background: var(--white);
       box-shadow: 0 28px 80px rgba(30,27,22,.30);
     }
 
-    .modal h3 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: 27px; }
+    .modal h3 { margin: 0; font-size: 23px; letter-spacing: -.025em; }
     .modal p { margin: 7px 0 21px; color: var(--muted); font-size: 14px; }
     .field { display: grid; gap: 7px; margin-top: 15px; }
-    .field label { color: #59544d; font-size: 12px; font-weight: 800; letter-spacing: .06em; }
+    .field label { color: var(--muted); font-size: 12px; font-weight: 500; }
     .field input, .field select { width: 100%; height: 43px; padding: 0 12px; border: 1px solid #d8d2c8; border-radius: 11px; background: white; color: var(--ink); }
 
     .color-picker { display: flex; gap: 10px; }
@@ -426,6 +491,7 @@ HTML = r'''<!doctype html>
     .color-choice input { position: absolute; opacity: 0; pointer-events: none; }
     .color-swatch { display: block; width: 37px; height: 37px; border: 2px solid white; border-radius: 11px; box-shadow: 0 0 0 1px rgba(37,35,31,.17); cursor: pointer; }
     .color-choice input:checked + .color-swatch { box-shadow: 0 0 0 3px var(--ink); transform: rotate(-5deg); }
+    .color-choice input:focus-visible + .color-swatch { outline: 3px solid rgba(69,123,157,.50); outline-offset: 4px; }
     .swatch-yellow { background: #f4d86e; } .swatch-blue { background: #9ed4e7; } .swatch-green { background: #a8d9ad; } .swatch-rose { background: #efa9ac; } .swatch-lilac { background: #c9b5e9; }
 
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
@@ -451,19 +517,41 @@ HTML = r'''<!doctype html>
 
     .toast.show { transform: translateY(0); opacity: 1; }
 
+    @media (max-width: 1200px) {
+      .project-card { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .card-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px; }
+      .card-toolbar { grid-column: 1 / -1; }
+      .project-title { margin-top: 0; }
+      .project-meta { margin-top: 0; flex-direction: row; align-items: center; }
+    }
+
+    @media (max-width: 980px) {
+      .workspace { grid-template-columns: 1fr; }
+      .priority-panel { position: static; max-height: none; border-left: 0; padding-left: 0; }
+    }
+
     @media (max-width: 720px) {
       .app-shell { padding: 19px 16px 36px; }
       .topbar { align-items: flex-start; }
       .topbar-actions { align-items: flex-end; flex-direction: column-reverse; gap: 9px; }
       .save-status { font-size: 11px; }
       .brand-copy p { display: none; }
-      .hero { align-items: stretch; flex-direction: column; padding: 20px 0; }
-      .hero-actions { align-items: stretch; flex-direction: column-reverse; }
-      .hero .primary-button { width: 100%; }
-      .hero .clear-all-button { width: 100%; }
-      .board { grid-template-columns: 1fr; gap: 18px; }
+      .hero { align-items: stretch; flex-direction: column; gap: 14px; padding: 22px 0; }
+      .hero-actions { align-items: stretch; gap: 10px; }
+      .hero .primary-button { flex: 1; }
+      .hero .clear-all-button { flex: 0 0 auto; }
+      .board { grid-template-columns: 1fr; gap: 0; }
       .project-card:hover { transform: none; }
       .todo-delete { opacity: .65; }
+      .card-head { padding-inline: 0; grid-template-columns: minmax(0, 1fr); gap: 7px; }
+      .card-toolbar { grid-column: 1; }
+      .project-meta { justify-content: space-between; }
+      .todo-item { grid-template-columns: 12px 18px minmax(0, 1fr) 56px 20px; }
+      .todo-item > .todo-delete { grid-column: 5; }
+      .todo-item > .todo-order-actions { grid-column: 3 / 5; grid-row: 2; }
+      .todo-order-actions, .todo-drag-handle { opacity: .65; }
+      .board-heading { font-size: 26px; }
+      .workspace { gap: 22px; }
     }
 
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
@@ -489,6 +577,7 @@ HTML = r'''<!doctype html>
 
     <section class="hero">
       <div>
+        <h2 class="board-heading" id="boardHeading">Projects</h2>
         <p class="hero-meta" id="boardStats">Loading projects…</p>
       </div>
       <div class="hero-actions">
@@ -497,7 +586,17 @@ HTML = r'''<!doctype html>
       </div>
     </section>
 
-    <section class="board" id="board" aria-label="Project note board"></section>
+    <div class="workspace">
+      <section class="board" id="board" aria-label="Project note board"></section>
+      <aside class="priority-panel" id="priorityPanel" aria-labelledby="priorityPanelTitle">
+        <div class="priority-panel-head">
+          <h2 id="priorityPanelTitle">Priority order</h2>
+          <span class="priority-panel-count" id="priorityPanelCount">0</span>
+        </div>
+        <p class="priority-panel-description" id="priorityPanelDescription">Drag tasks into the order you want to tackle them.</p>
+        <div class="priority-list" id="priorityList"></div>
+      </aside>
+    </div>
   </main>
 
   <div class="modal-backdrop" id="projectModal" hidden>
@@ -549,14 +648,15 @@ HTML = r'''<!doctype html>
         loadingProjects: 'Loading projects…',
         addProject: 'Add a project',
         clearAll: 'Clear all',
-        boardLabel: 'Project note board',
+        boardLabel: 'Project list',
+        boardHeading: 'Projects',
         modalTitle: 'Add a project',
         modalDescription: 'Give it a recognizable name. You can edit it at any time.',
         projectName: 'Project name',
         projectNamePlaceholder: 'e.g. Model A training and evaluation',
         projectPriority: 'Project priority',
-        noteColor: 'Note color',
-        chooseColor: 'Choose a note color',
+        noteColor: 'Project color',
+        chooseColor: 'Choose a project color',
         cancel: 'Cancel',
         createProject: 'Create project',
         colorYellow: 'Warm yellow',
@@ -577,7 +677,7 @@ HTML = r'''<!doctype html>
         emptyText: 'Add your first project above',
         dragSort: 'Drag to reorder',
         moveEarlier: 'Move earlier',
-        changeColor: 'Change note color',
+        changeColor: 'Change project color',
         clearProject: 'Clear project',
         clearTodos: 'Clear all tasks',
         dragTodo: 'Drag to reorder task',
@@ -610,6 +710,14 @@ HTML = r'''<!doctype html>
         todosCleared: 'Project tasks cleared',
         orderUpdated: 'Project order updated',
         todoOrderUpdated: 'Task order updated',
+        priorityPanelTitle: 'Priority order',
+        priorityPanelDescription: 'Drag tasks into the order you want to tackle them.',
+        priorityPanelEmpty: 'Add an open task to see it here.',
+        priorityProject: name => `Project · ${name}`,
+        dragPriorityTodo: 'Drag to rank task',
+        movePriorityUp: 'Move task higher',
+        movePriorityDown: 'Move task lower',
+        priorityOrderUpdated: 'Priority order updated',
         switchLanguage: '切换到中文',
         languageButton: '中文'
       },
@@ -618,16 +726,17 @@ HTML = r'''<!doctype html>
         tagline: '让每个流转中的项目，都留在视线里',
         loading: '正在读取…',
         loadingProjects: '载入项目中…',
-        addProject: '贴一个新项目',
+        addProject: '新建项目',
         clearAll: '清空全部',
-        boardLabel: '项目便签板',
-        modalTitle: '贴一个新项目',
+        boardLabel: '项目列表',
+        boardHeading: '项目',
+        modalTitle: '新建项目',
         modalDescription: '先给它一个容易辨认的名字，之后随时都能修改。',
         projectName: '项目名称',
         projectNamePlaceholder: '例如：模型 A 训练与测评',
         projectPriority: '项目重要程度',
-        noteColor: '便签颜色',
-        chooseColor: '选择便签颜色',
+        noteColor: '项目标识色',
+        chooseColor: '选择项目标识色',
         cancel: '取消',
         createProject: '创建项目',
         colorYellow: '暖黄',
@@ -643,12 +752,12 @@ HTML = r'''<!doctype html>
         todoPriorityMedium: '中',
         todoPriorityLow: '低',
         stats: (projects, open, completed) => `${projects} 个项目 · ${open} 条待办未完成${completed ? ` · ${completed} 条已完成` : ''}`,
-        firstProjectHint: '先贴下第一个项目，让每个等待都有下一个动作。',
+        firstProjectHint: '创建第一个项目，安排接下来要做的事。',
         emptyTitle: '还没有项目',
         emptyText: '点击上方按钮添加第一个项目',
         dragSort: '拖动排序',
         moveEarlier: '向前移动',
-        changeColor: '更换便签颜色',
+        changeColor: '更换项目标识色',
         clearProject: '清空项目',
         clearTodos: '清空全部待办',
         dragTodo: '拖动调整待办顺序',
@@ -672,7 +781,7 @@ HTML = r'''<!doctype html>
         saveFailed: '保存失败，请保持脚本运行',
         cacheLoaded: '已读取本地缓存',
         loadFailed: '读取失败，请刷新页面',
-        projectAdded: '项目已贴到流转板',
+        projectAdded: '项目已创建',
         confirmClearAll: '确定清空页面中的所有项目和待办吗？此操作无法撤销。',
         allCleared: '已清空全部项目',
         confirmClearProject: name => `确定清空项目“${name}”及其中所有待办吗？项目本身也会被删除。`,
@@ -681,6 +790,14 @@ HTML = r'''<!doctype html>
         todosCleared: '已清空项目待办',
         orderUpdated: '项目顺序已更新',
         todoOrderUpdated: '待办顺序已更新',
+        priorityPanelTitle: '优先级顺序',
+        priorityPanelDescription: '拖动待办，排出接下来要处理的先后顺序。',
+        priorityPanelEmpty: '添加一条未完成待办后，它会自动出现在这里。',
+        priorityProject: name => `项目 · ${name}`,
+        dragPriorityTodo: '拖动调整全局优先顺序',
+        movePriorityUp: '提高待办顺序',
+        movePriorityDown: '降低待办顺序',
+        priorityOrderUpdated: '优先级顺序已更新',
         switchLanguage: 'Switch to English',
         languageButton: 'EN'
       }
@@ -705,14 +822,18 @@ HTML = r'''<!doctype html>
       return date.toLocaleTimeString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' });
     }
 
-    let state = { version: 1, projects: [] };
+    let state = { version: 1, projects: [], priorityOrder: [] };
     let saveTimer = null;
     let saveQueue = Promise.resolve();
     let draggedProjectId = null;
     let draggedTodo = null;
+    let draggedPriorityTodoId = null;
     let saveStateInfo = { kind: '', key: 'loading', args: [] };
 
     const board = document.getElementById('board');
+    const priorityPanel = document.getElementById('priorityPanel');
+    const priorityList = document.getElementById('priorityList');
+    const priorityPanelCount = document.getElementById('priorityPanelCount');
     const stats = document.getElementById('boardStats');
     const modal = document.getElementById('projectModal');
     const projectForm = document.getElementById('projectForm');
@@ -762,6 +883,9 @@ HTML = r'''<!doctype html>
       clearAllButton.title = t('clearAll');
       clearAllButton.setAttribute('aria-label', t('clearAll'));
       board.setAttribute('aria-label', t('boardLabel'));
+      document.getElementById('boardHeading').textContent = t('boardHeading');
+      document.getElementById('priorityPanelTitle').textContent = t('priorityPanelTitle');
+      document.getElementById('priorityPanelDescription').textContent = t('priorityPanelDescription');
       document.getElementById('modalTitle').textContent = t('modalTitle');
       document.getElementById('modalDescription').textContent = t('modalDescription');
       document.getElementById('projectNameLabel').textContent = t('projectName');
@@ -794,10 +918,8 @@ HTML = r'''<!doctype html>
     }
 
     function normalizeState(raw) {
-      const projects = Array.isArray(raw?.projects) ? raw.projects : [];
-      return {
-        version: 1,
-        projects: projects.map(project => ({
+      const rawProjects = Array.isArray(raw?.projects) ? raw.projects : [];
+      const projects = rawProjects.map(project => ({
           id: String(project.id || id('project')),
           name: String(project.name || t('untitledProject')).slice(0, 80),
           color: COLORS.includes(project.color) ? project.color : 'yellow',
@@ -808,11 +930,70 @@ HTML = r'''<!doctype html>
             priority: TODO_PRIORITIES.includes(todo.priority) ? todo.priority : 'medium',
             completed: Boolean(todo.completed)
           }))
-        }))
+        }));
+      const todoIds = projects.flatMap(project => project.todos.map(todo => todo.id));
+      const validIds = new Set(todoIds);
+      const seen = new Set();
+      const savedOrder = Array.isArray(raw?.priorityOrder) ? raw.priorityOrder : [];
+      const priorityOrder = savedOrder
+        .map(String)
+        .filter(todoId => validIds.has(todoId) && !seen.has(todoId) && seen.add(todoId));
+      todoIds.forEach(todoId => {
+        if (!seen.has(todoId)) priorityOrder.push(todoId);
+      });
+      return {
+        version: 1,
+        projects,
+        priorityOrder
       };
     }
 
+    function syncPriorityOrder() {
+      const todoIds = state.projects.flatMap(project => project.todos.map(todo => todo.id));
+      const validIds = new Set(todoIds);
+      const seen = new Set();
+      state.priorityOrder = (Array.isArray(state.priorityOrder) ? state.priorityOrder : [])
+        .filter(todoId => validIds.has(todoId) && !seen.has(todoId) && seen.add(todoId));
+      todoIds.forEach(todoId => {
+        if (!seen.has(todoId)) state.priorityOrder.push(todoId);
+      });
+    }
+
+    function priorityItems() {
+      const byId = new Map();
+      state.projects.forEach(project => {
+        project.todos.forEach(todo => byId.set(todo.id, { project, todo }));
+      });
+      return state.priorityOrder
+        .map(todoId => byId.get(todoId))
+        .filter(item => item && !item.todo.completed);
+    }
+
+    function renderPriorityPanel() {
+      const items = priorityItems();
+      priorityPanelCount.textContent = String(items.length);
+      if (!items.length) {
+        priorityList.innerHTML = `<div class="priority-empty">${t('priorityPanelEmpty')}</div>`;
+        return;
+      }
+      priorityList.innerHTML = items.map(({ project, todo }, index) => `
+        <div class="priority-item note-${project.color}" draggable="true" data-todo-id="${escapeHtml(todo.id)}" data-priority="${todo.priority}">
+          <span class="priority-rank priority-drag-handle" title="${t('dragPriorityTodo')}" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>
+          <div class="priority-item-main" title="${escapeHtml(todo.text)}">
+            <div class="priority-item-text">${escapeHtml(todo.text)}</div>
+            <div class="priority-item-project">${escapeHtml(t('priorityProject', project.name))}</div>
+          </div>
+          <div class="priority-item-actions">
+            <select class="todo-priority" data-action="priority-todo-priority" aria-label="${t('todoPriority')}">${priorityOptions(todo.priority, TODO_PRIORITIES, 'todo')}</select>
+            <button class="icon-button todo-order-button" data-action="move-priority-up" type="button" title="${t('movePriorityUp')}" aria-label="${t('movePriorityUp')}" ${index === 0 ? 'disabled' : ''}>↑</button>
+            <button class="icon-button todo-order-button" data-action="move-priority-down" type="button" title="${t('movePriorityDown')}" aria-label="${t('movePriorityDown')}" ${index === items.length - 1 ? 'disabled' : ''}>↓</button>
+          </div>
+        </div>`).join('');
+    }
+
     function render() {
+      syncPriorityOrder();
+      renderPriorityPanel();
       const totalTodos = state.projects.reduce((sum, project) => sum + project.todos.length, 0);
       const completedTodos = state.projects.reduce((sum, project) => sum + project.todos.filter(todo => todo.completed).length, 0);
       const openTodos = totalTodos - completedTodos;
@@ -846,7 +1027,7 @@ HTML = r'''<!doctype html>
         return `<article class="project-card note-${project.color}" data-project-id="${escapeHtml(project.id)}">
           <div class="card-head">
             <div class="card-toolbar">
-              <div class="drag-handle" draggable="true" title="${t('dragSort')}" aria-label="${t('dragSort')}"><span class="grip">•••</span>${t('dragSort')}</div>
+              <div class="drag-handle" draggable="true" title="${t('dragSort')}" aria-label="${t('dragSort')}"><span class="project-index">${String(index + 1).padStart(2, '0')}</span><span class="drag-label">${t('dragSort')}</span></div>
               <div class="head-actions">
                 <button class="icon-button" data-action="move-left" type="button" title="${t('moveEarlier')}" aria-label="${t('moveEarlier')}" ${index === 0 ? 'disabled' : ''}>←</button>
                 <button class="icon-button" data-action="cycle-color" type="button" title="${t('changeColor')}" aria-label="${t('changeColor')}">◐</button>
@@ -880,6 +1061,14 @@ HTML = r'''<!doctype html>
       return findProject(projectId)?.todos.find(todo => todo.id === todoId);
     }
 
+    function findTodoById(todoId) {
+      for (const project of state.projects) {
+        const todo = project.todos.find(item => item.id === todoId);
+        if (todo) return todo;
+      }
+      return null;
+    }
+
     function moveTodo(project, todoId, targetIndex) {
       const from = project.todos.findIndex(todo => todo.id === todoId);
       const to = Math.max(0, Math.min(targetIndex, project.todos.length - 1));
@@ -889,6 +1078,32 @@ HTML = r'''<!doctype html>
       render();
       scheduleSave();
       showToast(t('todoOrderUpdated'));
+    }
+
+    function movePriorityTodo(todoId, targetTodoId) {
+      if (!todoId || !targetTodoId || todoId === targetTodoId) return;
+      const from = state.priorityOrder.indexOf(todoId);
+      if (from < 0) return;
+      state.priorityOrder.splice(from, 1);
+      const to = state.priorityOrder.indexOf(targetTodoId);
+      if (to < 0) return;
+      state.priorityOrder.splice(to, 0, todoId);
+      render();
+      scheduleSave();
+      showToast(t('priorityOrderUpdated'));
+    }
+
+    function movePriorityTodoByStep(todoId, direction) {
+      const visibleIds = priorityItems().map(item => item.todo.id);
+      const from = visibleIds.indexOf(todoId);
+      const target = visibleIds[from + direction];
+      if (from < 0 || !target) return;
+      const firstIndex = state.priorityOrder.indexOf(todoId);
+      const secondIndex = state.priorityOrder.indexOf(target);
+      [state.priorityOrder[firstIndex], state.priorityOrder[secondIndex]] = [state.priorityOrder[secondIndex], state.priorityOrder[firstIndex]];
+      render();
+      scheduleSave();
+      showToast(t('priorityOrderUpdated'));
     }
 
     function scheduleSave() {
@@ -978,7 +1193,13 @@ HTML = r'''<!doctype html>
       const data = new FormData(form);
       const text = String(data.get('text') || '').trim();
       if (!project || !text) return;
-      project.todos.push({ id: id('todo'), text, priority: String(data.get('priority') || 'medium'), completed: false });
+      const newTodo = { id: id('todo'), text, priority: String(data.get('priority') || 'medium'), completed: false };
+      const firstCompletedIndex = project.todos.findIndex(todo => todo.completed);
+      if (firstCompletedIndex === -1) {
+        project.todos.push(newTodo);
+      } else {
+        project.todos.splice(firstCompletedIndex, 0, newTodo);
+      }
       render();
       scheduleSave();
       const nextInput = board.querySelector(`.add-todo-form[data-project-id="${CSS.escape(project.id)}"] input[name="text"]`);
@@ -1054,8 +1275,7 @@ HTML = r'''<!doctype html>
         render(); scheduleSave();
       } else if (action === 'todo-priority' && todo) {
         todo.priority = node.value;
-        todoNode.dataset.priority = node.value;
-        scheduleSave();
+        render(); scheduleSave();
       }
     });
 
@@ -1130,6 +1350,59 @@ HTML = r'''<!doctype html>
       board.querySelectorAll('.dragging, .drag-over, .todo-dragging, .todo-drag-over').forEach(node => node.classList.remove('dragging', 'drag-over', 'todo-dragging', 'todo-drag-over'));
     });
 
+    priorityPanel.addEventListener('click', event => {
+      const actionNode = event.target.closest('[data-action]');
+      const item = event.target.closest('.priority-item');
+      if (!actionNode || !item) return;
+      if (actionNode.dataset.action === 'move-priority-up') {
+        movePriorityTodoByStep(item.dataset.todoId, -1);
+      } else if (actionNode.dataset.action === 'move-priority-down') {
+        movePriorityTodoByStep(item.dataset.todoId, 1);
+      }
+    });
+
+    priorityPanel.addEventListener('change', event => {
+      if (event.target.dataset.action !== 'priority-todo-priority') return;
+      const item = event.target.closest('.priority-item');
+      const todo = findTodoById(item?.dataset.todoId);
+      if (!todo) return;
+      todo.priority = event.target.value;
+      render();
+      scheduleSave();
+    });
+
+    priorityPanel.addEventListener('dragstart', event => {
+      const item = event.target.closest('.priority-item');
+      if (!item) return;
+      draggedPriorityTodoId = item.dataset.todoId;
+      item.classList.add('priority-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', `priority:${draggedPriorityTodoId}`);
+    });
+
+    priorityPanel.addEventListener('dragover', event => {
+      const item = event.target.closest('.priority-item');
+      if (!item || !draggedPriorityTodoId || item.dataset.todoId === draggedPriorityTodoId) return;
+      event.preventDefault();
+      priorityPanel.querySelectorAll('.priority-drag-over').forEach(node => node.classList.remove('priority-drag-over'));
+      item.classList.add('priority-drag-over');
+      event.dataTransfer.dropEffect = 'move';
+    });
+
+    priorityPanel.addEventListener('drop', event => {
+      const item = event.target.closest('.priority-item');
+      if (!item || !draggedPriorityTodoId || item.dataset.todoId === draggedPriorityTodoId) return;
+      event.preventDefault();
+      const todoId = draggedPriorityTodoId;
+      draggedPriorityTodoId = null;
+      movePriorityTodo(todoId, item.dataset.todoId);
+    });
+
+    priorityPanel.addEventListener('dragend', () => {
+      draggedPriorityTodoId = null;
+      priorityPanel.querySelectorAll('.priority-dragging, .priority-drag-over').forEach(node => node.classList.remove('priority-dragging', 'priority-drag-over'));
+    });
+
     applyLanguage();
     loadState();
   </script>
@@ -1139,7 +1412,7 @@ HTML = r'''<!doctype html>
 
 
 def empty_state() -> dict[str, Any]:
-    return {"version": 1, "projects": []}
+    return {"version": 1, "projects": [], "priorityOrder": []}
 
 
 def load_state() -> dict[str, Any]:
