@@ -181,7 +181,7 @@ HTML = r'''<!doctype html>
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       align-items: start;
-      gap: 0;
+      gap: 18px;
     }
 
     .priority-panel {
@@ -229,8 +229,7 @@ HTML = r'''<!doctype html>
     .priority-item[data-priority="urgent"] .priority-item-text { color: #b63f3f; font-weight: 750; }
     .priority-item[data-priority="high"] .priority-item-text { color: #a85e24; }
     .priority-item[data-priority="low"] .priority-item-text { color: #696f6c; font-weight: 550; }
-    .priority-item-project { overflow-wrap: anywhere; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.5; }
-    .priority-item-project::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 2px; background: var(--note-accent); }
+    .priority-item-project { display: inline-block; overflow-wrap: anywhere; margin-top: 7px; padding: 3px 7px; border-left: 3px solid var(--note-accent); background: var(--note-soft); color: #505052; font-size: 11px; line-height: 1.5; }
     .priority-item-actions { grid-column: 2; display: flex; gap: 4px; align-items: center; }
     .priority-item .todo-priority { width: 60px; margin-right: auto; text-align: left; }
     .priority-drag-handle { cursor: grab; }
@@ -240,31 +239,31 @@ HTML = r'''<!doctype html>
     .project-card {
       display: grid;
       grid-template-columns: minmax(150px, .38fr) minmax(0, 1fr);
-      gap: 28px;
+      gap: 24px;
       position: relative;
       min-width: 0;
-      padding: 24px 0 28px;
-      border: 0;
-      border-top: 1px solid var(--line);
-      border-radius: 0;
-      background: transparent;
+      padding: 0;
+      border: 1px solid var(--note);
+      border-left: 5px solid var(--note-accent);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--white);
       box-shadow: none;
       transition: transform .18s, box-shadow .18s, opacity .18s;
     }
 
-    .project-card:first-child { border-top-color: var(--ink); }
     .project-card.dragging { opacity: .42; transform: scale(.98); }
     .project-card.drag-over { box-shadow: 0 0 0 4px rgba(37, 35, 31, .22), var(--shadow); }
 
-    .note-yellow { --note: #e9dba8; --note-soft: #fff9e8; --note-accent: #c29a37; }
-    .note-blue { --note: #bfd8ed; --note-soft: #eff7ff; --note-accent: #5b92c1; }
-    .note-green { --note: #bfdcc9; --note-soft: #f0f8f2; --note-accent: #609477; }
-    .note-rose { --note: #edc6ce; --note-soft: #fff2f4; --note-accent: #c47c8d; }
-    .note-lilac { --note: #d4c8e8; --note-soft: #f6f2fd; --note-accent: #9780bd; }
+    .note-yellow { --note: #edcf7b; --note-soft: #fbf0cf; --note-accent: #9a721b; }
+    .note-blue { --note: #bbd4ee; --note-soft: #e8f1fb; --note-accent: #3e74ac; }
+    .note-green { --note: #b9d6c1; --note-soft: #e8f3eb; --note-accent: #3f7c53; }
+    .note-rose { --note: #e8bbc5; --note-soft: #fae9ed; --note-accent: #ae5066; }
+    .note-lilac { --note: #cec0e6; --note-soft: #f0eafa; --note-accent: #7b5da5; }
 
-    .card-head { min-width: 0; padding: 0; }
+    .card-head { min-width: 0; padding: 18px 16px; background: var(--note); }
     .card-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
-    .project-index { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .project-index { display: inline-flex; align-items: center; gap: 8px; color: #505052; font-size: 11px; font-variant-numeric: tabular-nums; }
     .project-index::before { content: ""; width: 16px; height: 3px; background: var(--note-accent); }
     .drag-label { display: none; }
 
@@ -301,6 +300,12 @@ HTML = r'''<!doctype html>
 
     .icon-button:hover { background: #eaeae7; color: var(--ink); }
     .icon-button.danger:hover { background: rgba(174,54,54,.13); color: #9e3131; }
+    .card-head .icon-button { color: #56565a; }
+    .card-head .icon-button:hover { background: rgba(255,255,255,.5); }
+    .color-button { background: rgba(255,255,255,.65); }
+    .color-sample { width: 13px; height: 13px; border-radius: 50%; background: var(--note-accent); box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+    .card-head .progress { color: #515155; }
+    .card-head .priority-select { background-color: rgba(255,255,255,.55); color: #444448; }
 
     .project-title {
       width: 100%;
@@ -336,7 +341,7 @@ HTML = r'''<!doctype html>
 
     .priority-select { background-color: #efefed; }
     .todo-priority:hover, .todo-priority:focus { background: #ececea; }
-    .card-body { min-width: 0; padding: 0; }
+    .card-body { min-width: 0; padding: 16px 18px 16px 0; }
     .todo-list { display: grid; gap: 0; min-height: 8px; }
 
     .todo-item {
@@ -492,7 +497,7 @@ HTML = r'''<!doctype html>
     .color-swatch { display: block; width: 37px; height: 37px; border: 2px solid white; border-radius: 11px; box-shadow: 0 0 0 1px rgba(37,35,31,.17); cursor: pointer; }
     .color-choice input:checked + .color-swatch { box-shadow: 0 0 0 3px var(--ink); transform: rotate(-5deg); }
     .color-choice input:focus-visible + .color-swatch { outline: 3px solid rgba(69,123,157,.50); outline-offset: 4px; }
-    .swatch-yellow { background: #f4d86e; } .swatch-blue { background: #9ed4e7; } .swatch-green { background: #a8d9ad; } .swatch-rose { background: #efa9ac; } .swatch-lilac { background: #c9b5e9; }
+    .swatch-yellow { background: #edcf7b; } .swatch-blue { background: #bbd4ee; } .swatch-green { background: #b9d6c1; } .swatch-rose { background: #e8bbc5; } .swatch-lilac { background: #cec0e6; }
 
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
     .secondary-button { min-height: 42px; padding: 0 16px; border: 1px solid #d8d2c8; border-radius: 11px; background: white; color: var(--ink); font-weight: 700; }
@@ -518,8 +523,9 @@ HTML = r'''<!doctype html>
     .toast.show { transform: translateY(0); opacity: 1; }
 
     @media (max-width: 1200px) {
-      .project-card { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .project-card { grid-template-columns: minmax(0, 1fr); gap: 0; }
       .card-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px; }
+      .card-body { padding: 14px 16px; }
       .card-toolbar { grid-column: 1 / -1; }
       .project-title { margin-top: 0; }
       .project-meta { margin-top: 0; flex-direction: row; align-items: center; }
@@ -540,10 +546,10 @@ HTML = r'''<!doctype html>
       .hero-actions { align-items: stretch; gap: 10px; }
       .hero .primary-button { flex: 1; }
       .hero .clear-all-button { flex: 0 0 auto; }
-      .board { grid-template-columns: 1fr; gap: 0; }
+      .board { grid-template-columns: 1fr; gap: 18px; }
       .project-card:hover { transform: none; }
       .todo-delete { opacity: .65; }
-      .card-head { padding-inline: 0; grid-template-columns: minmax(0, 1fr); gap: 7px; }
+      .card-head { padding-inline: 16px; grid-template-columns: minmax(0, 1fr); gap: 7px; }
       .card-toolbar { grid-column: 1; }
       .project-meta { justify-content: space-between; }
       .todo-item { grid-template-columns: 12px 18px minmax(0, 1fr) 56px 20px; }
@@ -1030,7 +1036,7 @@ HTML = r'''<!doctype html>
               <div class="drag-handle" draggable="true" title="${t('dragSort')}" aria-label="${t('dragSort')}"><span class="project-index">${String(index + 1).padStart(2, '0')}</span><span class="drag-label">${t('dragSort')}</span></div>
               <div class="head-actions">
                 <button class="icon-button" data-action="move-left" type="button" title="${t('moveEarlier')}" aria-label="${t('moveEarlier')}" ${index === 0 ? 'disabled' : ''}>←</button>
-                <button class="icon-button" data-action="cycle-color" type="button" title="${t('changeColor')}" aria-label="${t('changeColor')}">◐</button>
+                <button class="icon-button color-button" data-action="cycle-color" type="button" title="${t('changeColor')}" aria-label="${t('changeColor')}"><span class="color-sample" aria-hidden="true"></span></button>
                 <button class="icon-button danger" data-action="clear-todos" type="button" title="${t('clearTodos')}" aria-label="${t('clearTodos')}" ${project.todos.length ? '' : 'disabled'}>⌫</button>
                 <button class="icon-button danger" data-action="clear-project" type="button" title="${t('clearProject')}" aria-label="${t('clearProject')}">×</button>
               </div>
